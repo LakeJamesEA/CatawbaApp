@@ -1,0 +1,158 @@
+mapbox_access_token: "pk.eyJ1IjoibXlnMHQiLCJhIjoiY2xiY2RuZ245MDY0ZTNxb2FsdG1lYzMyaiJ9.5VjRulRv038SPcmaV-WtHQ"
+cover_columns:
+  - column: "%cover21"
+    new_column: "risk21"
+    default: 2
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 0.5
+      - check: 0.6
+        value: 1
+      - check: 0.8
+        value: 1.5
+  - column: "%cover22"
+    new_column: "risk22"
+    default: 2
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 0.75
+      - check: 0.6
+        value: 1.5
+      - check: 0.8
+        value: 2.25
+  - column: "%cover23"
+    new_column: "risk23"
+    default: 4
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 1
+      - check: 0.6
+        value: 2
+      - check: 0.8
+        value: 3
+  - column: "%cover24"
+    new_column: "risk24"
+    default: 6
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 1.5
+      - check: 0.6
+        value: 3
+      - check: 0.8
+        value: 4.5
+  - column: "%cover31"
+    new_column: "risk31"
+    default: 6
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 1.5
+      - check: 0.6
+        value: 3
+      - check: 0.8
+        value: 4.5
+  - column: "%cover41"
+    new_column: "risk41"
+    default: 6
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 1.5
+      - check: 0.6
+        value: 3
+      - check: 0.8
+        value: 4.5
+  - column: "%cover43"
+    new_column: "risk43"
+    default: 6
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 1.5
+      - check: 0.6
+        value: 3
+      - check: 0.8
+        value: 4.5
+  - column: "%cover52"
+    new_column: "risk52"
+    default: 6
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 1.5
+      - check: 0.6
+        value: 3
+      - check: 0.8
+        value: 4.5
+  - column: "%cover71"
+    new_column: "risk71"
+    default: 6
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 1.5
+      - check: 0.6
+        value: 3
+      - check: 0.8
+        value: 4.5
+  - column: "%cover81"
+    new_column: "risk81"
+    default: 4
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 1
+      - check: 0.6
+        value: 2
+      - check: 0.8
+        value: 3
+  - column: "%cover82"
+    new_column: "risk82"
+    default: 4
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 1
+      - check: 0.6
+        value: 2
+      - check: 0.8
+        value: 3
+  - column: "%cover90"
+    new_column: "risk90"
+    default: 6
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 1.5
+      - check: 0.6
+        value: 3
+      - check: 0.8
+        value: 4.5
+  - column: "%cover95"
+    new_column: "risk95"
+    default: 6
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 1.5
+      - check: 0.6
+        value: 3
+      - check: 0.8
+        value: 4.5
