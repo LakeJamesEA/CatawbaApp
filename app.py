@@ -231,7 +231,7 @@ def parcel_info(parcel_id, slider_values, map_style, color_scale, switch_values)
         opacity=0.5,
         zoom=zoom,
         center=center,
-        height=750,
+        height=1000,
         hover_data=["ALTPARNO"],
     )
 
