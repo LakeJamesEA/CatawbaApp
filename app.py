@@ -7,7 +7,7 @@ import numpy as np
 
 from dash import Dash, dcc, html, Input, Output, dash_table, ALL
 
-from catadata.data.data import get_cata_data, get_cata_parcels
+from catadata.data.data import get_cata_data, get_cata_parcels, get_fresh_cata_data
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -48,6 +48,7 @@ form = dbc.Col(
                 alt_par_no := dbc.Input(id="alt-par-no", list="list-suggested-altparno"),
                 dbc.FormText("The ALTPARNO of the parcel."),
                 html.H4("% Cover Adjustments", className="form-header"),
+                reset_button := dbc.Button("reset", id="reset-cover"),
                 *[
                     html.Div(
                         [
@@ -69,63 +70,64 @@ form = dbc.Col(
     style={"overflowY": "scroll", "height": "90vh"},
 )
 
+map_options = dbc.Row(
+    [
+        html.H4("Map Options", className="form-header"),
+        dbc.Col(
+            [
+                dbc.Label("Map Style"),
+                map_style := dcc.Dropdown(
+                    id="map-style-select",
+                    value="carto-positron",
+                    options=[
+                        dict(
+                            label="open-street-map",
+                            value="open-street-map",
+                        ),
+                        dict(label="carto-positron", value="carto-positron"),
+                        dict(
+                            label="carto-darkmatter",
+                            value="carto-darkmatter",
+                        ),
+                        dict(label="stamen-terrain", value="stamen-terrain"),
+                        dict(label="stamen-toner", value="stamen-toner"),
+                        dict(
+                            label="stamen-watercolor",
+                            value="stamen-watercolor",
+                        ),
+                    ],
+                ),
+            ]
+        ),
+        dbc.Col(
+            [
+                dbc.Label("Colorscale"),
+                color_scale := dcc.Dropdown(
+                    id="color-scale-select",
+                    value="reds",
+                    options=[
+                        dict(label=colorscale, value=colorscale)
+                        for colorscale in px.colors.named_colorscales()
+                    ],
+                ),
+            ]
+        ),
+    ]
+)
+
 app.layout = dbc.Container(
     fluid=True,
     children=[
+        memory_storage := dcc.Store(id="memory"),
+        local_storage := dcc.Store(id="local", storage_type="local"),
+        session_storage := dcc.Store(id="session", storage_type="session"),
         dbc.Row(children=[html.H1("Catawba Data App", style={"textAlign": "center"})]),
         dbc.Row(
             [
                 form,
                 dbc.Col(
                     [
-                        dbc.Row(
-                            [
-                                html.H4("Map Options", className="form-header"),
-                                dbc.Col(
-                                    [
-                                        dbc.Label("Map Style"),
-                                        map_style := dcc.Dropdown(
-                                            id="map-style-select",
-                                            value="carto-positron",
-                                            options=[
-                                                dict(
-                                                    label="open-street-map",
-                                                    value="open-street-map",
-                                                ),
-                                                dict(
-                                                    label="carto-positron", value="carto-positron"
-                                                ),
-                                                dict(
-                                                    label="carto-darkmatter",
-                                                    value="carto-darkmatter",
-                                                ),
-                                                dict(
-                                                    label="stamen-terrain", value="stamen-terrain"
-                                                ),
-                                                dict(label="stamen-toner", value="stamen-toner"),
-                                                dict(
-                                                    label="stamen-watercolor",
-                                                    value="stamen-watercolor",
-                                                ),
-                                            ],
-                                        ),
-                                    ]
-                                ),
-                                dbc.Col(
-                                    [
-                                        dbc.Label("Colorscale"),
-                                        color_scale := dcc.Dropdown(
-                                            id="color-scale-select",
-                                            value="reds",
-                                            options=[
-                                                dict(label=colorscale, value=colorscale)
-                                                for colorscale in px.colors.named_colorscales()
-                                            ],
-                                        ),
-                                    ]
-                                ),
-                            ]
-                        ),
+                        map_options,
                         dbc.Row(
                             [
                                 html.H4("Selected Parcel", className="form-header"),
@@ -142,6 +144,24 @@ app.layout = dbc.Container(
         ),
     ],
 )
+
+
+@app.callback(
+    Output({"type": "cover-slider", "index": ALL}, "value"),
+    [Input(reset_button, "n_clicks"), Input(parcel_id, "value")],
+)
+def reset_covers(reset, parcel_id):
+    print(f"click {reset}")
+    print(f"parcel_id {parcel_id}")
+
+    if parcel_id != None:
+        cata_data = get_cata_data()
+        parcel = cata_data[cata_data.fid == int(parcel_id)].iloc[0]
+        values = [parcel[cover_col] for cover_col in cover_cols_list]
+
+        return values
+
+    return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 
 @app.callback(
@@ -202,14 +222,13 @@ def parcel_info(parcel_id, slider_values, map_style, color_scale, switch_values)
     )
 
     # Get the Latitude and Longitude of the centroid of the selected parcel
-
     center = None
     zoom = None
     if parcel_id and center_on_parcel:
         parcel = cata_parcels[cata_parcels.fid == parcel_id]
         centroid = parcel.iloc[0].geometry.centroid
         center = {"lat": centroid.y, "lon": centroid.x}
-        zoom = 14
+        zoom = 15
     else:
         center = {"lat": 35.666930, "lon": -82.097059}
         zoom = 11
@@ -231,7 +250,7 @@ def parcel_info(parcel_id, slider_values, map_style, color_scale, switch_values)
         opacity=0.5,
         zoom=zoom,
         center=center,
-        height=1000,
+        height=900,
         hover_data=["ALTPARNO"],
     )
 

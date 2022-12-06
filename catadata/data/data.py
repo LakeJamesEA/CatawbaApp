@@ -17,7 +17,11 @@ cata_parcels = gpd.read_file(cata_parcels_path.resolve(), dtype={"fid": str, "AL
 
 
 def get_cata_data():
-    return cata_data
+    return pd.read_csv(cata_data_path.resolve(), dtype={"fid": int, "ALTPARNO": str})
+
+
+def get_fresh_cata_data():
+    return pd.read_csv(cata_data_path.resolve(), dtype={"fid": int, "ALTPARNO": str})
 
 
 def get_cata_parcels():
