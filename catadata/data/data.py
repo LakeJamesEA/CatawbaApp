@@ -2,6 +2,8 @@ import pandas as pd
 import geopandas as gpd
 import pathlib
 
+print(pathlib.Path(".").resolve())
+
 cata_data_path = pathlib.Path("./catadata/data/cata_data.csv")
 cata_parcels_path = pathlib.Path("./catadata/data/100m Riparian Zone.shp")
 
