@@ -9,7 +9,7 @@ LOGGER = logging.getLogger()
 dir_path = os.path.dirname(os.path.realpath(__file__))
 LOGGER.error(dir_path)
 
-cata_data_path = pathlib.Path(f"{dir_path}/cata_data.csv")
+cata_data_path = pathlib.Path(f"{dir_path}/Cata_data.csv")
 cata_parcels_path = pathlib.Path(f"{dir_path}/100m Riparian Zone.shp")
 
 cata_data = pd.read_csv(cata_data_path.resolve(), dtype={"fid": int, "ALTPARNO": str})
