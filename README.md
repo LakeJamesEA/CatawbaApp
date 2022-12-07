@@ -27,6 +27,10 @@ Add & Commit any changes to git
 - `git add -A`
 - `git commit -m "some message"`
 
-Push changes to git and heroku
+Push changes to git
+
+- `git push -u main`
+
+Push changes to heroku
 
 - `git push heroku main`
