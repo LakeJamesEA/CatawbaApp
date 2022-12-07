@@ -93,7 +93,7 @@ form = dbc.Col(
                                 max=1,
                                 step=0.2,
                             ),
-                        ]
+                        ], className="slider-container"
                     )
                     for cover_col in cover_cols_list
                 ],
