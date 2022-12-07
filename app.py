@@ -28,6 +28,39 @@ alt_parcel_id_list = html.Datalist(
     children=[html.Option(value=str(altparno_id)) for altparno_id in get_cata_data().ALTPARNO],
 )
 
+def cover_details(cover_column):
+    if cover_column == "%cover11":
+        return "Open Water"
+    elif cover_column == "%cover21":
+        return "Developed, Open Space"
+    elif cover_column == "%cover22":
+        return "Developed, Low Intensity"
+    elif cover_column == "%cover23":
+        return "Developed, Medium Intensity"
+    elif cover_column == "%cover24":
+        return "Developed, High Intensity"
+    elif cover_column == "%cover31":
+        return "Barren Land (Rock/Sand/Clay)"
+    elif cover_column == "%cover41":
+        return "Deciduous Forest"
+    elif cover_column == "%cover42":
+        return "Evergreen Forest"
+    elif cover_column == "%cover43":
+        return "Mixed Forest"
+    elif cover_column == "%cover52":
+        return "Shrub/Scrub"
+    elif cover_column == "%cover71":
+        return "Grassland/Herbaceous"
+    elif cover_column == "%cover81":
+        return "Pasture/Hay"
+    elif cover_column == "%cover82":
+        return "Cultivated Crops"
+    elif cover_column == "%cover90":
+        return "Woody Wetlands"
+    elif cover_column == "%cover95":
+        return "Emergent Herbaceous Wetlands"
+
+
 form = dbc.Col(
     [
         dbc.Form(
@@ -53,6 +86,7 @@ form = dbc.Col(
                     html.Div(
                         [
                             dbc.Label(cover_col),
+                            dbc.FormText(cover_details(cover_col)),
                             dcc.Slider(
                                 id={"type": "cover-slider", "index": cover_col},
                                 min=0,
@@ -121,7 +155,7 @@ app.layout = dbc.Container(
         memory_storage := dcc.Store(id="memory"),
         local_storage := dcc.Store(id="local", storage_type="local"),
         session_storage := dcc.Store(id="session", storage_type="session"),
-        dbc.Row(children=[html.H1("Catawba Data App", style={"textAlign": "center"})]),
+        dbc.Row(children=[html.H1("Catawba River Analysis", style={"textAlign": "center"})]),
         dbc.Row(
             [
                 form,
@@ -146,7 +180,7 @@ app.layout = dbc.Container(
 )
 
 
-@app.callback(
+@app.callback( 
     Output({"type": "cover-slider", "index": ALL}, "value"),
     [Input(reset_button, "n_clicks"), Input(parcel_id, "value")],
 )
@@ -250,7 +284,7 @@ def parcel_info(parcel_id, slider_values, map_style, color_scale, switch_values)
         opacity=0.5,
         zoom=zoom,
         center=center,
-        height=900,
+        #height=900,
         hover_data=["ALTPARNO"],
     )
 
