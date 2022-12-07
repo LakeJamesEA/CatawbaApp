@@ -29,7 +29,7 @@ Add & Commit any changes to git
 
 Push changes to git
 
-- `git push -u main`
+- `git push -u origin main`
 
 Push changes to heroku
 
