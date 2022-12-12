@@ -13,7 +13,7 @@ from dash import Dash, dcc, html, Input, Output, dash_table, ALL, State
 
 from catadata.data.data import get_cata_data, get_cata_parcels, get_fresh_cata_data, cata_data_path, cata_conservation_path
 
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 server = app.server
 
@@ -77,6 +77,7 @@ cata_conservation_data_upload = html.Div([dcc.Upload(
 #    id="list-suggested-altparno",
 #    children=[html.Option(value=str(altparno_id)) for altparno_id in get_cata_data().ALTPARNO],
 #)
+
 
 def cover_details(cover_column):
     if  cover_column == "%>20":
@@ -150,7 +151,8 @@ form = dbc.Col(
                                 max=1,
                                 step=0.2,
                             ),
-                        ], className="slider-container"
+                        ],
+                        className="slider-container",
                     )
                     for cover_col in cover_cols_config_list
                 ],
@@ -307,7 +309,7 @@ def handle_cata_conservation_data_upload(contents, filename, last_modified):
     return filename
 
 
-@app.callback( 
+@app.callback(
     Output({"type": "cover-slider", "index": ALL}, "value"),
     [Input(reset_button, "n_clicks"), Input(parcel_id, "value")],
 )
@@ -413,7 +415,7 @@ def parcel_info(parcel_id, slider_values, map_style, color_scale, switch_values)
         opacity=0.5,
         zoom=zoom,
         center=center,
-        #height=900,
+        # height=900,
         hover_data=["ALTPARNO"],
     )
 
