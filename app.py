@@ -3,11 +3,15 @@ import dash
 
 import dash_bootstrap_components as dbc
 import plotly.express as px
+import pandas as pd
 import numpy as np
+import base64
+import io
+import pathlib
 
-from dash import Dash, dcc, html, Input, Output, dash_table, ALL
+from dash import Dash, dcc, html, Input, Output, dash_table, ALL, State
 
-from catadata.data.data import get_cata_data, get_cata_parcels, get_fresh_cata_data
+from catadata.data.data import get_cata_data, get_cata_parcels, get_fresh_cata_data, cata_data_path, cata_conservation_path
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -18,18 +22,66 @@ with open("./config.yaml") as fp:
 
 cover_cols_list = list(filter(lambda c: "%cover" in c, list(get_cata_data().columns)))
 
+cover_cols_config_list = list(map(lambda x: x["column"], config["cover_columns"]))
+
 parcel_id_list = html.Datalist(
     id="list-suggested-parcel-ids",
     children=[html.Option(value=str(parcel_id)) for parcel_id in get_cata_data().fid],
 )
 
-alt_parcel_id_list = html.Datalist(
-    id="list-suggested-altparno",
-    children=[html.Option(value=str(altparno_id)) for altparno_id in get_cata_data().ALTPARNO],
-)
+cata_data_upload = html.Div([dcc.Upload(
+        id='cata-data-upload',
+        children=html.Div([
+            'Drag and Drop or ',
+            html.A('Select Files')
+        ]),
+        style={
+            'width': '100%',
+            'height': '60px',
+            'lineHeight': '60px',
+            'borderWidth': '1px',
+            'borderStyle': 'dashed',
+            'borderRadius': '5px',
+            'textAlign': 'center',
+            'margin': '10px'
+        },
+        # Allow multiple files to be uploaded
+        multiple=False
+    ),
+    html.Span(id="output-cata-data-upload")
+])
+
+cata_conservation_data_upload = html.Div([dcc.Upload(
+        id='cata-conservation-data-upload',
+        children=html.Div([
+            'Drag and Drop or ',
+            html.A('Select Files')
+        ]),
+        style={
+            'width': '100%',
+            'height': '60px',
+            'lineHeight': '60px',
+            'borderWidth': '1px',
+            'borderStyle': 'dashed',
+            'borderRadius': '5px',
+            'textAlign': 'center',
+            'margin': '10px'
+        },
+        # Allow multiple files to be uploaded
+        multiple=False
+    ),
+    html.Span(id="output-cata-conservation-data-upload")
+])
+
+#alt_parcel_id_list = html.Datalist(
+#    id="list-suggested-altparno",
+#    children=[html.Option(value=str(altparno_id)) for altparno_id in get_cata_data().ALTPARNO],
+#)
 
 def cover_details(cover_column):
-    if cover_column == "%cover11":
+    if  cover_column == "%>20":
+        return "Slope > 20%"
+    elif cover_column == "%cover11": 
         return "Open Water"
     elif cover_column == "%cover21":
         return "Developed, Open Space"
@@ -65,6 +117,11 @@ form = dbc.Col(
     [
         dbc.Form(
             [
+                html.H4("Datasets", className="form-header"),
+                dbc.Label("Catawba Data"),
+                cata_data_upload,
+                dbc.Label("Catawba Conservation Data"),
+                cata_conservation_data_upload,
                 html.H4("Parcel Info", className="form-header"),
                 parcel_id_list,
                 dbc.Label("Parcel ID (fid)"),
@@ -76,17 +133,17 @@ form = dbc.Col(
                     id="switches-input",
                     switch=True,
                 ),
-                alt_parcel_id_list,
-                dbc.Label("Alternate Parcel #"),
-                alt_par_no := dbc.Input(id="alt-par-no", list="list-suggested-altparno"),
-                dbc.FormText("The ALTPARNO of the parcel."),
+                #alt_parcel_id_list,
+                #dbc.Label("Alternate Parcel #"),
+                #alt_par_no := dbc.Input(id="alt-par-no", list="list-suggested-altparno"),
+                #dbc.FormText("The ALTPARNO of the parcel."),
                 html.H4("% Cover Adjustments", className="form-header"),
                 reset_button := dbc.Button("reset", id="reset-cover"),
                 *[
                     html.Div(
                         [
-                            dbc.Label(cover_col),
-                            dbc.FormText(cover_details(cover_col)),
+                            dbc.Label(cover_details(cover_col)),
+                            dbc.FormText(cover_col),
                             dcc.Slider(
                                 id={"type": "cover-slider", "index": cover_col},
                                 min=0,
@@ -95,7 +152,7 @@ form = dbc.Col(
                             ),
                         ], className="slider-container"
                     )
-                    for cover_col in cover_cols_list
+                    for cover_col in cover_cols_config_list
                 ],
             ],
         )
@@ -165,9 +222,11 @@ app.layout = dbc.Container(
                         dbc.Row(
                             [
                                 html.H4("Selected Parcel", className="form-header"),
-                                dash_table.DataTable(
+                                cover_table := dash_table.DataTable(
                                     id="parcel-info", style_table={"overflowX": "auto"}
                                 ),
+                                risk_table := dash_table.DataTable(id = "risk_info", style_table = {'overflowX': 'auto'}),
+                                conservation_table := dash_table.DataTable(id = "conservation_info", style_table = {'overflowX': 'auto'}),
                             ]
                         ),
                         dcc.Graph(id="map"),
@@ -179,6 +238,74 @@ app.layout = dbc.Container(
     ],
 )
 
+def parse_contents(contents, filename, date):
+    content_type, content_string = contents.split(',')
+
+    decoded = base64.b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            # Assume that the user uploaded a CSV file
+            df = pd.read_csv(
+                io.StringIO(decoded.decode('utf-8')))
+        elif 'xls' in filename:
+            # Assume that the user uploaded an excel file
+            df = pd.read_excel(io.BytesIO(decoded))
+    except Exception as e:
+        print(e)
+        raise e
+        # return html.Div([
+        #     'There was an error processing this file.'
+        # ])
+
+    return df
+
+@app.callback(
+    Output("output-cata-data-upload", "children"),
+    Input('cata-data-upload', 'contents'),
+    State('cata-data-upload', 'filename'),
+    State('cata-data-upload', 'last_modified')
+)
+def handle_cata_data_upload(contents, filename, last_modified):
+
+    if not contents:
+        return ""
+
+    try:
+        df = parse_contents(contents, filename, last_modified)
+
+        if len(df) != 419:
+            return "Data must have 419 rows!" 
+        
+        df.to_csv(cata_data_path, index=False)
+
+    except Exception as e:
+        return "There was an error processing this file."
+
+    return filename
+
+@app.callback(
+    Output("output-cata-conservation-data-upload", 'children'),
+    Input('cata-conservation-data-upload', 'contents'),
+    State('cata-conservation-data-upload', 'filename'),
+    State('cata-conservation-data-upload', 'last_modified')
+)
+def handle_cata_conservation_data_upload(contents, filename, last_modified):
+    
+    if not contents:
+        return ""
+
+    try:
+        df = parse_contents(contents, filename, last_modified)
+
+        if len(df) != 419:
+            return "Data must have 419 rows!  Did you forget to remove the extra header?"
+
+        df.to_csv(cata_conservation_path, index=False)
+    except Exception as e:
+        return "There was an error processing this file"
+
+    return filename
+
 
 @app.callback( 
     Output({"type": "cover-slider", "index": ALL}, "value"),
@@ -188,18 +315,20 @@ def reset_covers(reset, parcel_id):
     print(f"click {reset}")
     print(f"parcel_id {parcel_id}")
 
-    if parcel_id != None:
+    if parcel_id != None and parcel_id != '':
         cata_data = get_cata_data()
         parcel = cata_data[cata_data.fid == int(parcel_id)].iloc[0]
-        values = [parcel[cover_col] for cover_col in cover_cols_list]
+        values = [parcel[cover_col] for cover_col in cover_cols_config_list]
 
         return values
 
-    return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 
 @app.callback(
-    Output("parcel-info", "data"),
+    Output(cover_table, "data"),
+    Output(risk_table, "data"),
+    Output(conservation_table, "data"),
     Output("map", "figure"),
     [
         Input(parcel_id, "value"),
@@ -215,7 +344,7 @@ def parcel_info(parcel_id, slider_values, map_style, color_scale, switch_values)
 
     # Zip the list of cover columns and the slider values
     # Looks like [(%cover11, 0.6), ...]
-    cover_values = zip(cover_cols_list, slider_values)
+    cover_values = zip(cover_cols_config_list, slider_values)
 
     cover_config = config["cover_columns"]
     cata_parcels = get_cata_parcels()
@@ -289,10 +418,12 @@ def parcel_info(parcel_id, slider_values, map_style, color_scale, switch_values)
     )
 
     if not parcel_id:
-        return [], fig
+        return [], [], [], fig
 
     return (
-        cata_data[cata_data.fid == int(parcel_id)][["fid"] + cover_cols_list].to_dict("records"),
+        cata_data[cata_data.fid == int(parcel_id)][["fid"] + ["%>20" ] + cover_cols_list].to_dict("records"),
+        cata_data[cata_data.fid == int(parcel_id)][['fid'] + risk_columns].to_dict("records"),
+        cata_data[cata_data.fid == int(parcel_id)][['fid'] + config["conservation_columns"]].to_dict("records"),
         fig,
     )
 

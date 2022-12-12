@@ -1,5 +1,41 @@
 mapbox_access_token: "pk.eyJ1IjoibXlnMHQiLCJhIjoiY2xiY2RuZ245MDY0ZTNxb2FsdG1lYzMyaiJ9.5VjRulRv038SPcmaV-WtHQ"
+conservation_columns:
+  - Carbon
+  - Clean Air
+  - Lake Recreation
+  - Lakeshore Property Values
+  - Drinking Water Costs*
+  - Trout or HQW
+  - Source Water Watershed
+  - Impaired Water
+  - Restoration Project
+  - Rank UTI
+  - Rank GTI
 cover_columns:
+  - column: "%>20"
+    new_column: "risk%>20"
+    default: 8
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 4
+      - check: 0.6
+        value: 6
+      - check: 0.8
+        value: 8
+  - column: "%cover11"
+    new_column: "risk11"
+    default: 0
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: 0
+      - check: 0.6
+        value: 0
+      - check: 0.8
+        value: 0
   - column: "%cover21"
     new_column: "risk21"
     default: 2
@@ -62,6 +98,18 @@ cover_columns:
         value: 8
   - column: "%cover41"
     new_column: "risk41"
+    default: -6
+    thresholds:
+      - check: 0.2
+        value: 0
+      - check: 0.4
+        value: -2
+      - check: 0.6
+        value: -4
+      - check: 0.8
+        value: -6
+  - column: "%cover42"
+    new_column: "risk42"
     default: -3
     thresholds:
       - check: 0.2
@@ -74,40 +122,40 @@ cover_columns:
         value: -3
   - column: "%cover43"
     new_column: "risk43"
-    default: 6
+    default: -3
     thresholds:
       - check: 0.2
         value: 0
       - check: 0.4
-        value: 1.5
+        value: -1
       - check: 0.6
-        value: 3
+        value: -2
       - check: 0.8
-        value: 4.5
+        value: -3
   - column: "%cover52"
     new_column: "risk52"
-    default: 6
+    default: 2
     thresholds:
       - check: 0.2
         value: 0
       - check: 0.4
-        value: 1.5
+        value: 1
       - check: 0.6
-        value: 3
+        value: 1.5
       - check: 0.8
-        value: 4.5
+        value: 2
   - column: "%cover71"
     new_column: "risk71"
-    default: 6
+    default: 2
     thresholds:
       - check: 0.2
         value: 0
       - check: 0.4
-        value: 1.5
+        value: 1
       - check: 0.6
-        value: 3
+        value: 1.5
       - check: 0.8
-        value: 4.5
+        value: 2
   - column: "%cover81"
     new_column: "risk81"
     default: 4
@@ -119,40 +167,40 @@ cover_columns:
       - check: 0.6
         value: 2
       - check: 0.8
-        value: 3
+        value: 4
   - column: "%cover82"
     new_column: "risk82"
-    default: 4
+    default: 6
     thresholds:
       - check: 0.2
         value: 0
       - check: 0.4
-        value: 1
-      - check: 0.6
         value: 2
+      - check: 0.6
+        value: 4
       - check: 0.8
-        value: 3
+        value: 6
   - column: "%cover90"
     new_column: "risk90"
-    default: 6
+    default: 0
     thresholds:
       - check: 0.2
         value: 0
       - check: 0.4
-        value: 1.5
+        value: -1
       - check: 0.6
-        value: 3
+        value: -2
       - check: 0.8
-        value: 4.5
+        value: -3
   - column: "%cover95"
     new_column: "risk95"
-    default: 6
+    default: 0
     thresholds:
       - check: 0.2
         value: 0
       - check: 0.4
-        value: 1.5
+        value: -1
       - check: 0.6
-        value: 3
+        value: -2
       - check: 0.8
-        value: 4.5
+        value: -3
