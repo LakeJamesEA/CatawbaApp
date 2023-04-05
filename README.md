@@ -1,6 +1,6 @@
 # Catawba Data App
 
-This repo is the home of the Catawba Data plotly Dash app.
+This repo is the home of the Catawba Data plotly Dash app.  Please enjoy.
 
 ## Local Setup
 
